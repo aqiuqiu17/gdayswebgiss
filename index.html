@@ -1,0 +1,984 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="initial-scale=1,user-scalable=no,maximum-scale=1,width=device-width">
+        <meta name="mobile-web-app-capable" content="yes">
+        <meta name="apple-mobile-web-app-capable" content="yes">
+        <link rel="stylesheet" href="css/leaflet.css">
+        <link rel="stylesheet" href="css/L.Control.Layers.Tree.css">
+        <link rel="stylesheet" href="css/qgis2web.css">
+        <link rel="stylesheet" href="css/fontawesome-all.min.css">
+        <link rel="stylesheet" href="css/leaflet-search.css">
+        <link rel="stylesheet" href="css/filter.css">
+<link rel="stylesheet" href="css/nouislider.min.css">
+        <link rel="stylesheet" href="css/leaflet-control-geocoder.Geocoder.css">
+        <style>
+        html, body, #map {
+            width: 100%;
+            height: 100%;
+            padding: 0;
+            margin: 0;
+        }
+        </style>
+        <title></title>
+    </head>
+    <body>
+        <div id="map">
+        </div>
+        <script src="js/qgis2web_expressions.js"></script>
+        <script src="js/leaflet.js"></script>
+        <script src="js/L.Control.Layers.Tree.min.js"></script>
+        <script src="js/leaflet.rotatedMarker.js"></script>
+        <script src="js/leaflet.pattern.js"></script>
+        <script src="js/leaflet-hash.js"></script>
+        <script src="js/Autolinker.min.js"></script>
+        <script src="js/rbush.min.js"></script>
+        <script src="js/labelgun.min.js"></script>
+        <script src="js/labels.js"></script>
+        <script src="js/leaflet-control-geocoder.Geocoder.js"></script>
+        <script src="js/leaflet-search.js"></script>
+        <script src="js/tailDT.js"></script>
+<script src="js/nouislider.min.js"></script>
+<script src="js/wNumb.js"></script>
+        <script src="data/KasusMalaria2023_1.js"></script>
+        <script src="data/KasusMalaria2020_2.js"></script>
+        <script src="data/Indeks2030_3.js"></script>
+        <script src="data/Indeks2020_4.js"></script>
+        <script>
+        var highlightLayer;
+        function highlightFeature(e) {
+            highlightLayer = e.target;
+            highlightLayer.openPopup();
+        }
+        var map = L.map('map', {
+            zoomControl:false, maxZoom:28, minZoom:1
+        }).fitBounds([[-9.076344712746696,129.40700643346565],[1.6408341183532755,143.38220762922003]]);
+        var hash = new L.Hash(map);
+        map.attributionControl.setPrefix('<a href="https://github.com/tomchadwin/qgis2web" target="_blank">qgis2web</a> &middot; <a href="https://leafletjs.com" title="A JS library for interactive maps">Leaflet</a> &middot; <a href="https://qgis.org">QGIS</a>');
+        var autolinker = new Autolinker({truncate: {length: 30, location: 'smart'}});
+        // remove popup's row if "visible-with-data"
+        function removeEmptyRowsFromPopupContent(content, feature) {
+         var tempDiv = document.createElement('div');
+         tempDiv.innerHTML = content;
+         var rows = tempDiv.querySelectorAll('tr');
+         for (var i = 0; i < rows.length; i++) {
+             var td = rows[i].querySelector('td.visible-with-data');
+             var key = td ? td.id : '';
+             if (td && td.classList.contains('visible-with-data') && feature.properties[key] == null) {
+                 rows[i].parentNode.removeChild(rows[i]);
+             }
+         }
+         return tempDiv.innerHTML;
+        }
+        // add class to format popup if it contains media
+		function addClassToPopupIfMedia(content, popup) {
+			var tempDiv = document.createElement('div');
+			tempDiv.innerHTML = content;
+			if (tempDiv.querySelector('td img')) {
+				popup._contentNode.classList.add('media');
+					// Delay to force the redraw
+					setTimeout(function() {
+						popup.update();
+					}, 10);
+			} else {
+				popup._contentNode.classList.remove('media');
+			}
+		}
+        var zoomControl = L.control.zoom({
+            position: 'topleft'
+        }).addTo(map);
+        var bounds_group = new L.featureGroup([]);
+        function setBounds() {
+        }
+        map.createPane('pane_F4Map2D_0');
+        map.getPane('pane_F4Map2D_0').style.zIndex = 400;
+        var layer_F4Map2D_0 = L.tileLayer('https://tile1.f4map.com/tiles/f4_2d/{z}/{x}/{y}.png', {
+            pane: 'pane_F4Map2D_0',
+            opacity: 1.0,
+            attribution: '',
+            minZoom: 1,
+            maxZoom: 28,
+        });
+        layer_F4Map2D_0;
+        map.addLayer(layer_F4Map2D_0);
+        function pop_KasusMalaria2023_1(feature, layer) {
+            layer.on({
+                mouseout: function(e) {
+                    if (typeof layer.closePopup == 'function') {
+                        layer.closePopup();
+                    } else {
+                        layer.eachLayer(function(feature){
+                            feature.closePopup()
+                        });
+                    }
+                },
+                mouseover: highlightFeature,
+            });
+            var popupContent = '<table>\
+                    <tr>\
+                        <th scope="row">WADMKK</th>\
+                        <td>' + (feature.properties['WADMKK'] !== null ? autolinker.link(feature.properties['WADMKK'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                </table>';
+            var content = removeEmptyRowsFromPopupContent(popupContent, feature);
+			layer.on('popupopen', function(e) {
+				addClassToPopupIfMedia(content, e.popup);
+			});
+			layer.bindPopup(content, { maxHeight: 400 });
+        }
+
+        function style_KasusMalaria2023_1_0(feature) {
+            if (feature.properties['Kasus Malaria 2023'] >= 0.000000 && feature.properties['Kasus Malaria 2023'] <= 134.200000 ) {
+                return {
+                pane: 'pane_KasusMalaria2023_1',
+                opacity: 1,
+                color: 'rgba(35,35,35,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1.0, 
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(255,245,235,1.0)',
+                interactive: true,
+            }
+            }
+            if (feature.properties['Kasus Malaria 2023'] >= 134.200000 && feature.properties['Kasus Malaria 2023'] <= 394.600000 ) {
+                return {
+                pane: 'pane_KasusMalaria2023_1',
+                opacity: 1,
+                color: 'rgba(35,35,35,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1.0, 
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(253,210,165,1.0)',
+                interactive: true,
+            }
+            }
+            if (feature.properties['Kasus Malaria 2023'] >= 394.600000 && feature.properties['Kasus Malaria 2023'] <= 1712.800000 ) {
+                return {
+                pane: 'pane_KasusMalaria2023_1',
+                opacity: 1,
+                color: 'rgba(35,35,35,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1.0, 
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(253,146,67,1.0)',
+                interactive: true,
+            }
+            }
+            if (feature.properties['Kasus Malaria 2023'] >= 1712.800000 && feature.properties['Kasus Malaria 2023'] <= 8340.200000 ) {
+                return {
+                pane: 'pane_KasusMalaria2023_1',
+                opacity: 1,
+                color: 'rgba(35,35,35,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1.0, 
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(223,80,5,1.0)',
+                interactive: true,
+            }
+            }
+            if (feature.properties['Kasus Malaria 2023'] >= 8340.200000 && feature.properties['Kasus Malaria 2023'] <= 145776.000000 ) {
+                return {
+                pane: 'pane_KasusMalaria2023_1',
+                opacity: 1,
+                color: 'rgba(35,35,35,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1.0, 
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(127,39,4,1.0)',
+                interactive: true,
+            }
+            }
+        }
+        map.createPane('pane_KasusMalaria2023_1');
+        map.getPane('pane_KasusMalaria2023_1').style.zIndex = 401;
+        map.getPane('pane_KasusMalaria2023_1').style['mix-blend-mode'] = 'normal';
+        var layer_KasusMalaria2023_1 = new L.geoJson(json_KasusMalaria2023_1, {
+            attribution: '',
+            interactive: true,
+            dataVar: 'json_KasusMalaria2023_1',
+            layerName: 'layer_KasusMalaria2023_1',
+            pane: 'pane_KasusMalaria2023_1',
+            onEachFeature: pop_KasusMalaria2023_1,
+            style: style_KasusMalaria2023_1_0,
+        });
+        bounds_group.addLayer(layer_KasusMalaria2023_1);
+        map.addLayer(layer_KasusMalaria2023_1);
+        function pop_KasusMalaria2020_2(feature, layer) {
+            layer.on({
+                mouseout: function(e) {
+                    if (typeof layer.closePopup == 'function') {
+                        layer.closePopup();
+                    } else {
+                        layer.eachLayer(function(feature){
+                            feature.closePopup()
+                        });
+                    }
+                },
+                mouseover: highlightFeature,
+            });
+            var popupContent = '<table>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['WADMKK'] !== null ? autolinker.link(feature.properties['WADMKK'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">Kasus Malaria 2020</th>\
+                        <td class="visible-with-data" id="Kasus Malaria 2020">' + (feature.properties['Kasus Malaria 2020'] !== null ? autolinker.link(feature.properties['Kasus Malaria 2020'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                </table>';
+            var content = removeEmptyRowsFromPopupContent(popupContent, feature);
+			layer.on('popupopen', function(e) {
+				addClassToPopupIfMedia(content, e.popup);
+			});
+			layer.bindPopup(content, { maxHeight: 400 });
+        }
+
+        function style_KasusMalaria2020_2_0(feature) {
+            if (feature.properties['Kasus Malaria 2020'] >= 0.000000 && feature.properties['Kasus Malaria 2020'] <= 22.400000 ) {
+                return {
+                pane: 'pane_KasusMalaria2020_2',
+                opacity: 1,
+                color: 'rgba(35,35,35,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1.0, 
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(255,245,235,1.0)',
+                interactive: true,
+            }
+            }
+            if (feature.properties['Kasus Malaria 2020'] >= 22.400000 && feature.properties['Kasus Malaria 2020'] <= 189.200000 ) {
+                return {
+                pane: 'pane_KasusMalaria2020_2',
+                opacity: 1,
+                color: 'rgba(35,35,35,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1.0, 
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(253,210,165,1.0)',
+                interactive: true,
+            }
+            }
+            if (feature.properties['Kasus Malaria 2020'] >= 189.200000 && feature.properties['Kasus Malaria 2020'] <= 859.200000 ) {
+                return {
+                pane: 'pane_KasusMalaria2020_2',
+                opacity: 1,
+                color: 'rgba(35,35,35,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1.0, 
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(253,146,67,1.0)',
+                interactive: true,
+            }
+            }
+            if (feature.properties['Kasus Malaria 2020'] >= 859.200000 && feature.properties['Kasus Malaria 2020'] <= 7063.200000 ) {
+                return {
+                pane: 'pane_KasusMalaria2020_2',
+                opacity: 1,
+                color: 'rgba(35,35,35,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1.0, 
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(223,80,5,1.0)',
+                interactive: true,
+            }
+            }
+            if (feature.properties['Kasus Malaria 2020'] >= 7063.200000 && feature.properties['Kasus Malaria 2020'] <= 77775.000000 ) {
+                return {
+                pane: 'pane_KasusMalaria2020_2',
+                opacity: 1,
+                color: 'rgba(35,35,35,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1.0, 
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(127,39,4,1.0)',
+                interactive: true,
+            }
+            }
+        }
+        map.createPane('pane_KasusMalaria2020_2');
+        map.getPane('pane_KasusMalaria2020_2').style.zIndex = 402;
+        map.getPane('pane_KasusMalaria2020_2').style['mix-blend-mode'] = 'normal';
+        var layer_KasusMalaria2020_2 = new L.geoJson(json_KasusMalaria2020_2, {
+            attribution: '',
+            interactive: true,
+            dataVar: 'json_KasusMalaria2020_2',
+            layerName: 'layer_KasusMalaria2020_2',
+            pane: 'pane_KasusMalaria2020_2',
+            onEachFeature: pop_KasusMalaria2020_2,
+            style: style_KasusMalaria2020_2_0,
+        });
+        bounds_group.addLayer(layer_KasusMalaria2020_2);
+        map.addLayer(layer_KasusMalaria2020_2);
+        function pop_Indeks2030_3(feature, layer) {
+            layer.on({
+                mouseout: function(e) {
+                    if (typeof layer.closePopup == 'function') {
+                        layer.closePopup();
+                    } else {
+                        layer.eachLayer(function(feature){
+                            feature.closePopup()
+                        });
+                    }
+                },
+                mouseover: highlightFeature,
+            });
+            var popupContent = '<table>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['WADMKK'] !== null ? autolinker.link(feature.properties['WADMKK'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">Indeks 2030</th>\
+                        <td class="visible-with-data" id="Indeks 2030">' + (feature.properties['Indeks 2030'] !== null ? autolinker.link(feature.properties['Indeks 2030'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                </table>';
+            var content = removeEmptyRowsFromPopupContent(popupContent, feature);
+			layer.on('popupopen', function(e) {
+				addClassToPopupIfMedia(content, e.popup);
+			});
+			layer.bindPopup(content, { maxHeight: 400 });
+        }
+
+        function style_Indeks2030_3_0(feature) {
+            if (feature.properties['Indeks 2030'] >= 0.000000 && feature.properties['Indeks 2030'] <= 0.000000 ) {
+                return {
+                pane: 'pane_Indeks2030_3',
+                opacity: 1,
+                color: 'rgba(35,35,35,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1.0, 
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(255,245,240,1.0)',
+                interactive: true,
+            }
+            }
+            if (feature.properties['Indeks 2030'] >= 0.000000 && feature.properties['Indeks 2030'] <= 0.000400 ) {
+                return {
+                pane: 'pane_Indeks2030_3',
+                opacity: 1,
+                color: 'rgba(35,35,35,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1.0, 
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(252,190,165,1.0)',
+                interactive: true,
+            }
+            }
+            if (feature.properties['Indeks 2030'] >= 0.000400 && feature.properties['Indeks 2030'] <= 0.002000 ) {
+                return {
+                pane: 'pane_Indeks2030_3',
+                opacity: 1,
+                color: 'rgba(35,35,35,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1.0, 
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(251,112,80,1.0)',
+                interactive: true,
+            }
+            }
+            if (feature.properties['Indeks 2030'] >= 0.002000 && feature.properties['Indeks 2030'] <= 0.009800 ) {
+                return {
+                pane: 'pane_Indeks2030_3',
+                opacity: 1,
+                color: 'rgba(35,35,35,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1.0, 
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(211,32,32,1.0)',
+                interactive: true,
+            }
+            }
+            if (feature.properties['Indeks 2030'] >= 0.009800 && feature.properties['Indeks 2030'] <= 1.000000 ) {
+                return {
+                pane: 'pane_Indeks2030_3',
+                opacity: 1,
+                color: 'rgba(35,35,35,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1.0, 
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(103,0,13,1.0)',
+                interactive: true,
+            }
+            }
+        }
+        map.createPane('pane_Indeks2030_3');
+        map.getPane('pane_Indeks2030_3').style.zIndex = 403;
+        map.getPane('pane_Indeks2030_3').style['mix-blend-mode'] = 'normal';
+        var layer_Indeks2030_3 = new L.geoJson(json_Indeks2030_3, {
+            attribution: '',
+            interactive: true,
+            dataVar: 'json_Indeks2030_3',
+            layerName: 'layer_Indeks2030_3',
+            pane: 'pane_Indeks2030_3',
+            onEachFeature: pop_Indeks2030_3,
+            style: style_Indeks2030_3_0,
+        });
+        bounds_group.addLayer(layer_Indeks2030_3);
+        map.addLayer(layer_Indeks2030_3);
+        function pop_Indeks2020_4(feature, layer) {
+            layer.on({
+                mouseout: function(e) {
+                    if (typeof layer.closePopup == 'function') {
+                        layer.closePopup();
+                    } else {
+                        layer.eachLayer(function(feature){
+                            feature.closePopup()
+                        });
+                    }
+                },
+                mouseover: highlightFeature,
+            });
+            var popupContent = '<table>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['WADMKK'] !== null ? autolinker.link(feature.properties['WADMKK'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">Indeks 2020</th>\
+                        <td class="visible-with-data" id="Indeks 2020">' + (feature.properties['Indeks 2020'] !== null ? autolinker.link(feature.properties['Indeks 2020'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['Kasus 2023'] !== null ? autolinker.link(feature.properties['Kasus 2023'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['Kasus 2020'] !== null ? autolinker.link(feature.properties['Kasus 2020'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                </table>';
+            var content = removeEmptyRowsFromPopupContent(popupContent, feature);
+			layer.on('popupopen', function(e) {
+				addClassToPopupIfMedia(content, e.popup);
+			});
+			layer.bindPopup(content, { maxHeight: 400 });
+        }
+
+        function style_Indeks2020_4_0(feature) {
+            if (feature.properties['Indeks 2020'] >= 0.000000 && feature.properties['Indeks 2020'] <= 0.000000 ) {
+                return {
+                pane: 'pane_Indeks2020_4',
+                opacity: 1,
+                color: 'rgba(35,35,35,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1.0, 
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(255,245,240,1.0)',
+                interactive: true,
+            }
+            }
+            if (feature.properties['Indeks 2020'] >= 0.000000 && feature.properties['Indeks 2020'] <= 0.000400 ) {
+                return {
+                pane: 'pane_Indeks2020_4',
+                opacity: 1,
+                color: 'rgba(35,35,35,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1.0, 
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(252,190,165,1.0)',
+                interactive: true,
+            }
+            }
+            if (feature.properties['Indeks 2020'] >= 0.000400 && feature.properties['Indeks 2020'] <= 0.003000 ) {
+                return {
+                pane: 'pane_Indeks2020_4',
+                opacity: 1,
+                color: 'rgba(35,35,35,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1.0, 
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(251,112,80,1.0)',
+                interactive: true,
+            }
+            }
+            if (feature.properties['Indeks 2020'] >= 0.003000 && feature.properties['Indeks 2020'] <= 0.015800 ) {
+                return {
+                pane: 'pane_Indeks2020_4',
+                opacity: 1,
+                color: 'rgba(35,35,35,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1.0, 
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(211,32,32,1.0)',
+                interactive: true,
+            }
+            }
+            if (feature.properties['Indeks 2020'] >= 0.015800 && feature.properties['Indeks 2020'] <= 1.000000 ) {
+                return {
+                pane: 'pane_Indeks2020_4',
+                opacity: 1,
+                color: 'rgba(35,35,35,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1.0, 
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(103,0,13,1.0)',
+                interactive: true,
+            }
+            }
+        }
+        map.createPane('pane_Indeks2020_4');
+        map.getPane('pane_Indeks2020_4').style.zIndex = 404;
+        map.getPane('pane_Indeks2020_4').style['mix-blend-mode'] = 'normal';
+        var layer_Indeks2020_4 = new L.geoJson(json_Indeks2020_4, {
+            attribution: '',
+            interactive: true,
+            dataVar: 'json_Indeks2020_4',
+            layerName: 'layer_Indeks2020_4',
+            pane: 'pane_Indeks2020_4',
+            onEachFeature: pop_Indeks2020_4,
+            style: style_Indeks2020_4_0,
+        });
+        bounds_group.addLayer(layer_Indeks2020_4);
+        map.addLayer(layer_Indeks2020_4);
+        var osmGeocoder = new L.Control.Geocoder({
+            collapsed: true,
+            position: 'topleft',
+            text: 'Search',
+            title: 'Testing'
+        }).addTo(map);
+        document.getElementsByClassName('leaflet-control-geocoder-icon')[0]
+        .className += ' fa fa-search';
+        document.getElementsByClassName('leaflet-control-geocoder-icon')[0]
+        .title += 'Search for a place';
+        var baseMaps = {};
+        var overlaysTree = [
+            {label: 'Indeks 2020<br /><table><tr><td style="text-align: center;"><img src="legend/Indeks2020_4_000.png" /></td><td>0 - 0</td></tr><tr><td style="text-align: center;"><img src="legend/Indeks2020_4_0000041.png" /></td><td>0 - 0,0004</td></tr><tr><td style="text-align: center;"><img src="legend/Indeks2020_4_0000400032.png" /></td><td>0,0004 - 0,003</td></tr><tr><td style="text-align: center;"><img src="legend/Indeks2020_4_0003001583.png" /></td><td>0,003 - 0,0158</td></tr><tr><td style="text-align: center;"><img src="legend/Indeks2020_4_0015814.png" /></td><td>0,0158 - 1</td></tr></table>', layer: layer_Indeks2020_4},
+            {label: 'Indeks 2030<br /><table><tr><td style="text-align: center;"><img src="legend/Indeks2030_3_000.png" /></td><td>0 - 0</td></tr><tr><td style="text-align: center;"><img src="legend/Indeks2030_3_0000041.png" /></td><td>0 - 0,0004</td></tr><tr><td style="text-align: center;"><img src="legend/Indeks2030_3_0000400022.png" /></td><td>0,0004 - 0,002</td></tr><tr><td style="text-align: center;"><img src="legend/Indeks2030_3_0002000983.png" /></td><td>0,002 - 0,0098</td></tr><tr><td style="text-align: center;"><img src="legend/Indeks2030_3_0009814.png" /></td><td>0,0098 - 1</td></tr></table>', layer: layer_Indeks2030_3},
+            {label: 'Kasus Malaria 2020<br /><table><tr><td style="text-align: center;"><img src="legend/KasusMalaria2020_2_0220.png" /></td><td>0 - 22</td></tr><tr><td style="text-align: center;"><img src="legend/KasusMalaria2020_2_221891.png" /></td><td>22 - 189</td></tr><tr><td style="text-align: center;"><img src="legend/KasusMalaria2020_2_1898592.png" /></td><td>189 - 859</td></tr><tr><td style="text-align: center;"><img src="legend/KasusMalaria2020_2_85970633.png" /></td><td>859 - 7063</td></tr><tr><td style="text-align: center;"><img src="legend/KasusMalaria2020_2_7063777754.png" /></td><td>7063 - 77775</td></tr></table>', layer: layer_KasusMalaria2020_2},
+            {label: 'Kasus Malaria 2023<br /><table><tr><td style="text-align: center;"><img src="legend/KasusMalaria2023_1_01340.png" /></td><td>0 - 134</td></tr><tr><td style="text-align: center;"><img src="legend/KasusMalaria2023_1_1343951.png" /></td><td>134 - 395</td></tr><tr><td style="text-align: center;"><img src="legend/KasusMalaria2023_1_39517132.png" /></td><td>395 - 1713</td></tr><tr><td style="text-align: center;"><img src="legend/KasusMalaria2023_1_171383403.png" /></td><td>1713 - 8340</td></tr><tr><td style="text-align: center;"><img src="legend/KasusMalaria2023_1_83401457764.png" /></td><td>8340 - 145776</td></tr></table>', layer: layer_KasusMalaria2023_1},
+            {label: "F4 Map - 2D", layer: layer_F4Map2D_0},]
+        var lay = L.control.layers.tree(null, overlaysTree,{
+            //namedToggle: true,
+            //selectorBack: false,
+            //closedSymbol: '&#8862; &#x1f5c0;',
+            //openedSymbol: '&#8863; &#x1f5c1;',
+            //collapseAll: 'Collapse all',
+            //expandAll: 'Expand all',
+            collapsed: false, 
+        });
+        lay.addTo(map);
+		document.addEventListener("DOMContentLoaded", function() {
+            // set new Layers List height which considers toggle icon
+            function newLayersListHeight() {
+                var layerScrollbarElement = document.querySelector('.leaflet-control-layers-scrollbar');
+                if (layerScrollbarElement) {
+                    var layersListElement = document.querySelector('.leaflet-control-layers-list');
+                    var originalHeight = layersListElement.style.height 
+                        || window.getComputedStyle(layersListElement).height;
+                    var newHeight = parseFloat(originalHeight) - 50;
+                    layersListElement.style.height = newHeight + 'px';
+                }
+            }
+            var isLayersListExpanded = true;
+            var controlLayersElement = document.querySelector('.leaflet-control-layers');
+            var toggleLayerControl = document.querySelector('.leaflet-control-layers-toggle');
+            // toggle Collapsed/Expanded and apply new Layers List height
+            toggleLayerControl.addEventListener('click', function() {
+                if (isLayersListExpanded) {
+                    controlLayersElement.classList.remove('leaflet-control-layers-expanded');
+                } else {
+                    controlLayersElement.classList.add('leaflet-control-layers-expanded');
+                }
+                isLayersListExpanded = !isLayersListExpanded;
+                newLayersListHeight()
+            });	
+			// apply new Layers List height if toggle layerstree
+			if (controlLayersElement) {
+				controlLayersElement.addEventListener('click', function(event) {
+					var toggleLayerHeaderPointer = event.target.closest('.leaflet-layerstree-header-pointer span');
+					if (toggleLayerHeaderPointer) {
+						newLayersListHeight();
+					}
+				});
+			}
+            // Collapsed/Expanded at Start to apply new height
+            setTimeout(function() {
+                toggleLayerControl.click();
+            }, 10);
+            setTimeout(function() {
+                toggleLayerControl.click();
+            }, 10);
+            // Collapsed touch/small screen
+            var isSmallScreen = window.innerWidth < 650;
+            if (isSmallScreen) {
+                setTimeout(function() {
+                    controlLayersElement.classList.remove('leaflet-control-layers-expanded');
+                    isLayersListExpanded = !isLayersListExpanded;
+                }, 500);
+            }  
+        });       
+        setBounds();
+        map.addControl(new L.Control.Search({
+            layer: layer_KasusMalaria2023_1,
+            initial: false,
+            hideMarkerOnCollapse: true,
+            propertyName: 'WADMKK'}));
+        document.getElementsByClassName('search-button')[0].className +=
+         ' fa fa-binoculars';
+        var mapDiv = document.getElementById('map');
+        var row = document.createElement('div');
+        row.className="row";
+        row.id="all";
+        row.style.height = "100%";
+        var col1 = document.createElement('div');
+        col1.className="col9";
+        col1.id = "mapWindow";
+        col1.style.height = "99%";
+        col1.style.width = "80%";
+        col1.style.display = "inline-block";
+        var col2 = document.createElement('div');
+        col2.className="col3";
+        col2.id = "menu";
+        col2.style.display = "inline-block";
+        mapDiv.parentNode.insertBefore(row, mapDiv);
+        document.getElementById("all").appendChild(col1);
+        document.getElementById("all").appendChild(col2);
+        col1.appendChild(mapDiv)
+        var Filters = {"Kasus 2020": "real","Indeks 2020": "real","Indeks 2030": "real","Kasus 2023": "real","WADMKK": "str"};
+        function filterFunc() {
+          map.eachLayer(function(lyr){
+          if ("options" in lyr && "dataVar" in lyr["options"]){
+            features = this[lyr["options"]["dataVar"]].features.slice(0);
+            try{
+              for (key in Filters){
+                keyS = key.replace(/[^a-zA-Z0-9_]/g, "")
+                if (Filters[key] == "str" || Filters[key] == "bool"){
+                  var selection = [];
+                  var options = document.getElementById("sel_" + keyS).options
+                  for (var i=0; i < options.length; i++) {
+                    if (options[i].selected) selection.push(options[i].value);
+                  }
+                    try{
+                      if (key in features[0].properties){
+                        for (i = features.length - 1;
+                          i >= 0; --i){
+                          if (selection.indexOf(
+                          features[i].properties[key])<0
+                          && selection.length>0) {
+                          features.splice(i,1);
+                          }
+                        }
+                      }
+                    } catch(err){
+                  }
+                }
+                if (Filters[key] == "int"){
+                  sliderVals =  document.getElementById(
+                    "div_" + keyS).noUiSlider.get();
+                  try{
+                    if (key in features[0].properties){
+                    for (i = features.length - 1; i >= 0; --i){
+                      if (parseInt(features[i].properties[key])
+                          < sliderVals[0]
+                          || parseInt(features[i].properties[key])
+                          > sliderVals[1]){
+                            features.splice(i,1);
+                          }
+                        }
+                      }
+                    } catch(err){
+                    }
+                  }
+                if (Filters[key] == "real"){
+                  sliderVals =  document.getElementById(
+                    "div_" + keyS).noUiSlider.get();
+                  try{
+                    if (key in features[0].properties){
+                    for (i = features.length - 1; i >= 0; --i){
+                      if (features[i].properties[key]
+                          < sliderVals[0]
+                          || features[i].properties[key]
+                          > sliderVals[1]){
+                            features.splice(i,1);
+                          }
+                        }
+                      }
+                    } catch(err){
+                    }
+                  }
+                if (Filters[key] == "date"
+                  || Filters[key] == "datetime"
+                  || Filters[key] == "time"){
+                  try{
+                    if (key in features[0].properties){
+                      HTMLkey = key.replace(/[&\/\\#,+()$~%.'":*?<>{} ]/g, '');
+                      startdate = document.getElementById("dat_" +
+                        HTMLkey + "_date1").value.replace(" ", "T");
+                      enddate = document.getElementById("dat_" +
+                        HTMLkey + "_date2").value.replace(" ", "T");
+                      for (i = features.length - 1; i >= 0; --i){
+                        if (features[i].properties[key] < startdate
+                          || features[i].properties[key] > enddate){
+                          features.splice(i,1);
+                        }
+                      }
+                    }
+                  } catch(err){
+                  }
+                }
+              }
+            } catch(err){
+            }
+          this[lyr["options"]["layerName"]].clearLayers();
+          this[lyr["options"]["layerName"]].addData(features);
+          }
+          })
+        }
+            document.getElementById("menu").appendChild(
+                document.createElement("div"));
+            var div_Kasus2020 = document.createElement("div");
+            div_Kasus2020.id = "div_Kasus2020";
+            div_Kasus2020.className = "slider";
+            document.getElementById("menu").appendChild(div_Kasus2020);
+            var lab_Kasus2020 = document.createElement('div');
+            lab_Kasus2020.innerHTML  = 'Kasus 2020: <span id="val_Kasus2020"></span>';
+            lab_Kasus2020.className = 'filterlabel';
+            document.getElementById("menu").appendChild(lab_Kasus2020);
+            var reset_Kasus2020 = document.createElement('div');
+            reset_Kasus2020.innerHTML = 'clear filter';
+            reset_Kasus2020.className = 'filterlabel';
+            lab_Kasus2020.className = 'filterlabel';
+            reset_Kasus2020.onclick = function() {
+                sel_Kasus2020.noUiSlider.reset();
+            };
+            document.getElementById("menu").appendChild(reset_Kasus2020);
+            var sel_Kasus2020 = document.getElementById('div_Kasus2020');
+            noUiSlider.create(sel_Kasus2020, {
+                connect: true,
+                start: [5.0, 77775.0],
+                range: {
+                min: 5.0,
+                max: 77775.0
+                }
+            });
+            sel_Kasus2020.noUiSlider.on('update', function (values) {
+            val_Kasus2020 = document.getElementById('val_Kasus2020');
+            val_Kasus2020.innerHTML = values.join(' - ');
+                filterFunc()
+            });
+            document.getElementById("menu").appendChild(
+                document.createElement("div"));
+            var div_Indeks2020 = document.createElement("div");
+            div_Indeks2020.id = "div_Indeks2020";
+            div_Indeks2020.className = "slider";
+            document.getElementById("menu").appendChild(div_Indeks2020);
+            var lab_Indeks2020 = document.createElement('div');
+            lab_Indeks2020.innerHTML  = 'Indeks 2020: <span id="val_Indeks2020"></span>';
+            lab_Indeks2020.className = 'filterlabel';
+            document.getElementById("menu").appendChild(lab_Indeks2020);
+            var reset_Indeks2020 = document.createElement('div');
+            reset_Indeks2020.innerHTML = 'clear filter';
+            reset_Indeks2020.className = 'filterlabel';
+            lab_Indeks2020.className = 'filterlabel';
+            reset_Indeks2020.onclick = function() {
+                sel_Indeks2020.noUiSlider.reset();
+            };
+            document.getElementById("menu").appendChild(reset_Indeks2020);
+            var sel_Indeks2020 = document.getElementById('div_Indeks2020');
+            noUiSlider.create(sel_Indeks2020, {
+                connect: true,
+                start: [0.001, 1.0],
+                range: {
+                min: 0.001,
+                max: 1.0
+                }
+            });
+            sel_Indeks2020.noUiSlider.on('update', function (values) {
+            val_Indeks2020 = document.getElementById('val_Indeks2020');
+            val_Indeks2020.innerHTML = values.join(' - ');
+                filterFunc()
+            });
+            document.getElementById("menu").appendChild(
+                document.createElement("div"));
+            var div_Indeks2030 = document.createElement("div");
+            div_Indeks2030.id = "div_Indeks2030";
+            div_Indeks2030.className = "slider";
+            document.getElementById("menu").appendChild(div_Indeks2030);
+            var lab_Indeks2030 = document.createElement('div');
+            lab_Indeks2030.innerHTML  = 'Indeks 2030: <span id="val_Indeks2030"></span>';
+            lab_Indeks2030.className = 'filterlabel';
+            document.getElementById("menu").appendChild(lab_Indeks2030);
+            var reset_Indeks2030 = document.createElement('div');
+            reset_Indeks2030.innerHTML = 'clear filter';
+            reset_Indeks2030.className = 'filterlabel';
+            lab_Indeks2030.className = 'filterlabel';
+            reset_Indeks2030.onclick = function() {
+                sel_Indeks2030.noUiSlider.reset();
+            };
+            document.getElementById("menu").appendChild(reset_Indeks2030);
+            var sel_Indeks2030 = document.getElementById('div_Indeks2030');
+            noUiSlider.create(sel_Indeks2030, {
+                connect: true,
+                start: [0.001, 1.0],
+                range: {
+                min: 0.001,
+                max: 1.0
+                }
+            });
+            sel_Indeks2030.noUiSlider.on('update', function (values) {
+            val_Indeks2030 = document.getElementById('val_Indeks2030');
+            val_Indeks2030.innerHTML = values.join(' - ');
+                filterFunc()
+            });
+            document.getElementById("menu").appendChild(
+                document.createElement("div"));
+            var div_Kasus2023 = document.createElement("div");
+            div_Kasus2023.id = "div_Kasus2023";
+            div_Kasus2023.className = "slider";
+            document.getElementById("menu").appendChild(div_Kasus2023);
+            var lab_Kasus2023 = document.createElement('div');
+            lab_Kasus2023.innerHTML  = 'Kasus 2023: <span id="val_Kasus2023"></span>';
+            lab_Kasus2023.className = 'filterlabel';
+            document.getElementById("menu").appendChild(lab_Kasus2023);
+            var reset_Kasus2023 = document.createElement('div');
+            reset_Kasus2023.innerHTML = 'clear filter';
+            reset_Kasus2023.className = 'filterlabel';
+            lab_Kasus2023.className = 'filterlabel';
+            reset_Kasus2023.onclick = function() {
+                sel_Kasus2023.noUiSlider.reset();
+            };
+            document.getElementById("menu").appendChild(reset_Kasus2023);
+            var sel_Kasus2023 = document.getElementById('div_Kasus2023');
+            noUiSlider.create(sel_Kasus2023, {
+                connect: true,
+                start: [30.0, 145776.0],
+                range: {
+                min: 30.0,
+                max: 145776.0
+                }
+            });
+            sel_Kasus2023.noUiSlider.on('update', function (values) {
+            val_Kasus2023 = document.getElementById('val_Kasus2023');
+            val_Kasus2023.innerHTML = values.join(' - ');
+                filterFunc()
+            });
+            document.getElementById("menu").appendChild(
+                document.createElement("div"));
+            var div_WADMKK = document.createElement('div');
+            div_WADMKK.id = "div_WADMKK";
+            div_WADMKK.className= "filterselect";
+            document.getElementById("menu").appendChild(div_WADMKK);
+            sel_WADMKK = document.createElement('select');
+            sel_WADMKK.multiple = true;
+            sel_WADMKK.size = 10;
+            sel_WADMKK.id = "sel_WADMKK";
+            var WADMKK_options_str = "<option value='' unselected></option>";
+            sel_WADMKK.onchange = function(){filterFunc()};
+            WADMKK_options_str  += '<option value="Asmat">Asmat</option>';
+            WADMKK_options_str  += '<option value="Biak Numfor">Biak Numfor</option>';
+            WADMKK_options_str  += '<option value="Boven Digoel">Boven Digoel</option>';
+            WADMKK_options_str  += '<option value="Deiyai">Deiyai</option>';
+            WADMKK_options_str  += '<option value="Dogiyai">Dogiyai</option>';
+            WADMKK_options_str  += '<option value="Fak Fak">Fak Fak</option>';
+            WADMKK_options_str  += '<option value="Intan Jaya">Intan Jaya</option>';
+            WADMKK_options_str  += '<option value="Jayapura">Jayapura</option>';
+            WADMKK_options_str  += '<option value="Jayawijaya">Jayawijaya</option>';
+            WADMKK_options_str  += '<option value="Kaimana">Kaimana</option>';
+            WADMKK_options_str  += '<option value="Keerom">Keerom</option>';
+            WADMKK_options_str  += '<option value="Kepulauan Yapen">Kepulauan Yapen</option>';
+            WADMKK_options_str  += '<option value="Kota Jayapura">Kota Jayapura</option>';
+            WADMKK_options_str  += '<option value="Kota Sorong">Kota Sorong</option>';
+            WADMKK_options_str  += '<option value="Lanny Jaya">Lanny Jaya</option>';
+            WADMKK_options_str  += '<option value="Mamberamo Raya">Mamberamo Raya</option>';
+            WADMKK_options_str  += '<option value="Mamberamo Tengah">Mamberamo Tengah</option>';
+            WADMKK_options_str  += '<option value="Manokwari">Manokwari</option>';
+            WADMKK_options_str  += '<option value="Manokwari Selatan">Manokwari Selatan</option>';
+            WADMKK_options_str  += '<option value="Mappi">Mappi</option>';
+            WADMKK_options_str  += '<option value="Maybrat">Maybrat</option>';
+            WADMKK_options_str  += '<option value="Merauke">Merauke</option>';
+            WADMKK_options_str  += '<option value="Mimika">Mimika</option>';
+            WADMKK_options_str  += '<option value="Nabire">Nabire</option>';
+            WADMKK_options_str  += '<option value="Nduga">Nduga</option>';
+            WADMKK_options_str  += '<option value="Paniai">Paniai</option>';
+            WADMKK_options_str  += '<option value="Pegunungan Arfak">Pegunungan Arfak</option>';
+            WADMKK_options_str  += '<option value="Pegunungan Bintang">Pegunungan Bintang</option>';
+            WADMKK_options_str  += '<option value="Puncak">Puncak</option>';
+            WADMKK_options_str  += '<option value="Puncak Jaya">Puncak Jaya</option>';
+            WADMKK_options_str  += '<option value="Raja Ampat">Raja Ampat</option>';
+            WADMKK_options_str  += '<option value="Sarmi">Sarmi</option>';
+            WADMKK_options_str  += '<option value="Sorong">Sorong</option>';
+            WADMKK_options_str  += '<option value="Sorong Selatan">Sorong Selatan</option>';
+            WADMKK_options_str  += '<option value="Supiori">Supiori</option>';
+            WADMKK_options_str  += '<option value="Tambrauw">Tambrauw</option>';
+            WADMKK_options_str  += '<option value="Teluk Bintuni">Teluk Bintuni</option>';
+            WADMKK_options_str  += '<option value="Teluk Wondama">Teluk Wondama</option>';
+            WADMKK_options_str  += '<option value="Tolikara">Tolikara</option>';
+            WADMKK_options_str  += '<option value="Waropen">Waropen</option>';
+            WADMKK_options_str  += '<option value="Yahukimo">Yahukimo</option>';
+            WADMKK_options_str  += '<option value="Yalimo">Yalimo</option>';
+            sel_WADMKK.innerHTML = WADMKK_options_str;
+            div_WADMKK.appendChild(sel_WADMKK);
+            var lab_WADMKK = document.createElement('div');
+            lab_WADMKK.innerHTML = 'WADMKK';
+            lab_WADMKK.className = 'filterlabel';
+            div_WADMKK.appendChild(lab_WADMKK);
+            var reset_WADMKK = document.createElement('div');
+            reset_WADMKK.innerHTML = 'clear filter';
+            reset_WADMKK.className = 'filterlabel';
+            reset_WADMKK.onclick = function() {
+                var options = document.getElementById("sel_WADMKK").options;
+                for (var i=0; i < options.length; i++) {
+                    options[i].selected = false;
+                }
+                filterFunc();
+            };
+            div_WADMKK.appendChild(reset_WADMKK);
+        </script>
+    </body>
+</html>
